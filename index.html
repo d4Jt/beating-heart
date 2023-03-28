@@ -1,7 +1,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
 <html>
    <head>
-      <title>Give Heart To Crush</title>
+      <title>Give Your Heart For Crush</title>
       <meta name="Generator" content="EditPlus" />
       <meta name="Author" content="" />
       <meta name="Keywords" content="" />
@@ -12,14 +13,29 @@
             height: 100%;
             padding: 0;
             margin: 0;
-            background: rgb(14, 13, 13);
-            /* background-color: #f14492; */
+            background: #000;
+            position: relative;
          }
 
          canvas {
             position: absolute;
-            width: 100%;
-            height: 100%;
+            top: 25%;
+            left: 25%;
+            width: 50%;
+            height: 50%;
+            animation: heart 2s linear infinite;
+         }
+
+         @keyframes heart {
+            0% {
+               transform: scale(1);
+            }
+            50% {
+               transform: scale(1.2);
+            }
+            100% {
+               transform: scale(1);
+            }
          }
       </style>
    </head>
@@ -40,21 +56,21 @@
             },
          };
          /*
-          * RequestAnimationFrame polyfill
+          * RequestAnimationFrame polyfill by Erik Möller
           */
          (function () {
             var b = 0;
-            var c = ['ms', 'moz', 'webkit', 'o'];
+            var c = ["ms", "moz", "webkit", "o"];
             for (
                var a = 0;
                a < c.length && !window.requestAnimationFrame;
                ++a
             ) {
                window.requestAnimationFrame =
-                  window[c[a] + 'RequestAnimationFrame'];
+                  window[c[a] + "RequestAnimationFrame"];
                window.cancelAnimationFrame =
-                  window[c[a] + 'CancelAnimationFrame'] ||
-                  window[c[a] + 'CancelRequestAnimationFrame'];
+                  window[c[a] + "CancelAnimationFrame"] ||
+                  window[c[a] + "CancelRequestAnimationFrame"];
             }
             if (!window.requestAnimationFrame) {
                window.requestAnimationFrame = function (h, e) {
@@ -78,8 +94,8 @@
           */
          var Point = (function () {
             function Point(x, y) {
-               this.x = typeof x !== 'undefined' ? x : 0;
-               this.y = typeof y !== 'undefined' ? y : 0;
+               this.x = typeof x !== "undefined" ? x : 0;
+               this.y = typeof y !== "undefined" ? y : 0;
             }
 
             Point.prototype.clone = function () {
@@ -87,11 +103,12 @@
             };
 
             Point.prototype.length = function (length) {
-               if (typeof length == 'undefined')
+               if (typeof length == "undefined")
                   return Math.sqrt(this.x * this.x + this.y * this.y);
                this.normalize();
                this.x *= length;
                this.y *= length;
+
                return this;
             };
 
@@ -155,7 +172,6 @@
          /*
           * ParticlePool class
           */
-
          var ParticlePool = (function () {
             var particles,
                firstActive = 0,
@@ -164,7 +180,6 @@
 
             function ParticlePool(length) {
                // create and populate particle pool
-
                particles = new Array(length);
                for (var i = 0; i < particles.length; i++)
                   particles[i] = new Particle();
@@ -172,7 +187,6 @@
 
             ParticlePool.prototype.add = function (x, y, dx, dy) {
                particles[firstFree].initialize(x, y, dx, dy);
-
                // handle circular queue
                firstFree++;
                if (firstFree == particles.length) firstFree = 0;
@@ -182,20 +196,17 @@
 
             ParticlePool.prototype.update = function (deltaTime) {
                var i;
-
                // update active particles
                if (firstActive < firstFree) {
                   for (i = firstActive; i < firstFree; i++)
                      particles[i].update(deltaTime);
                }
-
                if (firstFree < firstActive) {
                   for (i = firstActive; i < particles.length; i++)
                      particles[i].update(deltaTime);
                   for (i = 0; i < firstFree; i++)
                      particles[i].update(deltaTime);
                }
-
                // remove inactive particles
                while (
                   particles[firstActive].age >= duration &&
@@ -212,11 +223,9 @@
                   for (i = firstActive; i < firstFree; i++)
                      particles[i].draw(context, image);
                }
-
                if (firstFree < firstActive) {
                   for (i = firstActive; i < particles.length; i++)
                      particles[i].draw(context, image);
-
                   for (i = 0; i < firstFree; i++)
                      particles[i].draw(context, image);
                }
@@ -228,12 +237,11 @@
           * Putting it all together
           */
          (function (canvas) {
-            var context = canvas.getContext('2d'),
+            var context = canvas.getContext("2d"),
                particles = new ParticlePool(settings.particles.length),
                particleRate =
                   settings.particles.length / settings.particles.duration, // particles/sec
                time;
-
             // get point on heart with -PI <= t <= PI
             function pointOnHeart(t) {
                return new Point(
@@ -245,14 +253,12 @@
                      25
                );
             }
-
             // creating the particle image using a dummy canvas
             var image = (function () {
-               var canvas = document.createElement('canvas'),
-                  context = canvas.getContext('2d');
+               var canvas = document.createElement("canvas"),
+                  context = canvas.getContext("2d");
                canvas.width = settings.particles.size;
                canvas.height = settings.particles.size;
-
                // helper function to create the path
                function to(t) {
                   var point = pointOnHeart(t);
@@ -262,10 +268,8 @@
                   point.y =
                      settings.particles.size / 2 -
                      (point.y * settings.particles.size) / 350;
-
                   return point;
                }
-
                // create the path
                context.beginPath();
                var t = -Math.PI;
@@ -276,14 +280,14 @@
                   point = to(t);
                   context.lineTo(point.x, point.y);
                }
-
                context.closePath();
                // create the fill
-               context.fillStyle = '#f14492';
+               context.fillStyle = "#f14492";
                context.fill();
                // create the image
                var image = new Image();
                image.src = canvas.toDataURL();
+
                return image;
             })();
 
@@ -295,7 +299,6 @@
                var newTime = new Date().getTime() / 1000,
                   deltaTime = newTime - (time || newTime);
                time = newTime;
-
                // clear canvas
                context.clearRect(0, 0, canvas.width, canvas.height);
                // create new particles
@@ -310,7 +313,6 @@
                      -dir.y
                   );
                }
-
                // update and draw particles
                particles.update(deltaTime);
                particles.draw(context, image);
@@ -327,7 +329,7 @@
                onResize();
                render();
             }, 10);
-         })(document.getElementById('heart'));
+         })(document.getElementById("heart"));
       </script>
    </body>
 </html>
